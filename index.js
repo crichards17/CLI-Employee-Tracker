@@ -1,13 +1,18 @@
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const cTable = require('console.table');
 
 const connection = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.PORT || 3306,
-  user: process.env.USERNAME,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE_NAME
+  // host: process.env.DB_HOST,
+  // port: process.env.PORT || 3306,
+  // user: process.env.USERNAME,
+  // password: process.env.PASSWORD,
+  // database: process.env.DATABASE_NAME
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "Squ3al?!",
+  database: "employees"
 });
 
 connection.connect(function(err) {
@@ -51,7 +56,7 @@ function promptNext() {
         case "Add Roles":
           addRole();
           break;
-        case "Update Employee Roles":
+        case "Update Employee Role":
           updateEmployeeRole();
           break;
         case "exit":
@@ -63,7 +68,7 @@ function promptNext() {
 
 function searchAllEmployees() {
   connection.query(
-    "SELECT employee.employee_id, employee.firstName, employee.lastName, role.title, department.name AS department, role.salary, CONCAT(manager.firstName, ' ', manager.lastName) AS manager FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id LEFT JOIN employee manager on manager.manager_id = employee.manager_id;",
+    "SELECT employee.employeeID, employee.firstName, employee.lastName, role.title, department.name AS department, role.salary, CONCAT(manager.firstName, ' ', manager.lastName) AS manager FROM employee LEFT JOIN role on employee.roleID = role.roleID LEFT JOIN department on role.department_id = department.department_id LEFT JOIN employee manager on manager.managerID = employee.managerID;",
     function(err, res) {
       if (err) throw err;
       console.table(res);
@@ -89,11 +94,11 @@ function searchRole() {
 };
 
 function updateEmpManager (empID, roleID){
-connection.query("UPDATE employee SET role_id = ? WHERE employee_id = ?", [roleID, empID])
+connection.query("UPDATE employee SET roleID = ? WHERE employeeID = ?", [roleID, empID])
 };
 
 function addEmployee() {
-  var questions = [
+  const questions = [
     {
       type: "input",
       message: "What is the employee's first name?",
@@ -121,8 +126,8 @@ function addEmployee() {
       {
         firstName: answer.firstName,
         lastName: answer.lastName,
-        role_id: answer.roleID,
-        manager_id: answer.managerID,
+        roleID: answer.roleID,
+        managerID: answer.managerID,
       },
       function(error) {
         if (error) throw error;
@@ -154,7 +159,7 @@ function addDeptartment() {
 };
 
 function addRole() {
-  var questions = [
+  const questions = [
     {
       type: "input",
       message: "What role would you like to add?",
@@ -188,19 +193,37 @@ function addRole() {
   });
 };
 
+
+
 function updateEmployeeRole() {
-    let employeesList = searchAllEmployees();
+  const questions = [
+    {
+      type: "input",
+      message: "What is the employee number of the employee you would like to update?",
+      name: "employeeID"
+    },
+    {
+      type: "input",
+      message: "Which Role ID should the user have?",
+      name: "newRole",
+    },
+  ];
 
-    let empChoices = employeesList.map(index => {
-        id: id;
-    })
-
-    inquirer.prompt({
-        type: "list",
-        name: "roleChoice",
-        message: "Assign which role?",
-        choices: empChoices,
-    });
-    connection.query("UPDATE employee SET role_id = ? WHERE employee_id = ?", [roleChoice, empID]);
-
+  inquirer.prompt(questions).then(function(answer) {
+    connection.query(
+      "UPDATE employee SET ? WHERE ?",
+      [
+        {
+          roleID: answer.newRole,
+        },
+        {
+          employeeID: answer.employeeID,
+        },
+      ],
+      function(error, res) {
+        if (error) throw error;
+        promptNext();
+      }
+    );
+  });
 };
