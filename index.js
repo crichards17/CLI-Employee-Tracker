@@ -171,7 +171,7 @@ function addRole() {
       name: "department"
     },
     {
-      type: "list",
+      type: "input",
       message: "What is the role's salary?",
       name: "salary"
     }
