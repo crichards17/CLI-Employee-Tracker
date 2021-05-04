@@ -68,7 +68,7 @@ function promptNext() {
 
 function searchAllEmployees() {
   connection.query(
-    "SELECT employee.employeeID, employee.firstName, employee.lastName, role.title, department.name AS department, role.salary, CONCAT(manager.firstName, ' ', manager.lastName) AS manager FROM employee LEFT JOIN role on employee.roleID = role.roleID LEFT JOIN department on role.department_id = department.department_id LEFT JOIN employee manager on manager.managerID = employee.managerID;",
+    "SELECT employee.employeeID, employee.firstName, employee.lastName, role.title, department.name AS department, role.salary, CONCAT(manager.firstName, ' ', manager.lastName) AS manager FROM employee LEFT JOIN role on employee.roleID = role.roleID LEFT JOIN department on role.department_id = department.department_id LEFT JOIN employee manager on manager.employeeID = employee.managerID;",
     function(err, res) {
       if (err) throw err;
       console.table(res);
